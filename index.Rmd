@@ -52,12 +52,12 @@ caracter_separador <- ','
 
 #--------------- Archivos de datos ----------------
 
-archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_30_CSV_GENERAL.csv'
+archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_GENERAL.csv'
 
-archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_30_CSV_POSITIVOS.csv'
-archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_30_CSV_ACTIVOS.csv'
-archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_30_CSV_RECUP.csv'
-archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/06_30_CSV_FALLECIDOS.csv'
+archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_POSITIVOS.csv'
+archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_ACTIVOS.csv'
+archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_RECUP.csv'
+archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_FALLECIDOS.csv'
 
 #---------------------- Datos ---------------------
 
@@ -85,20 +85,66 @@ df_positivos_cantones_ultima_fecha <-
 
 
 # Objeto sf de cantones
-url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
-solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
-sf_cantones <-
-  st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
-  st_simplify(dTolerance = 1000) %>%
-  st_transform(4326)
-# La carga de la capa de cantones desde un archivo GeoJSON parece generar un archivo HTML mucho más grande que
-# cuando se hace directmente desde el WFS del SNIT. Por eso se conserva la opción del WFS-SNIT.
-# sf_cantones <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_cantones_ign_wgs84.geojson')
+# Carga desde el servicio WFS del SNIT
+# url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
+# solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
+# sf_cantones <-
+#   st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
+#   st_simplify(dTolerance = 1000) %>%
+#   st_transform(4326)
+# Carga desde un archivo GeoJSON simplificado
+sf_cantones <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_cantonal_ign_wgs84.geojson')
 
 # Objeto sf de casos positivos en cantones en la última fecha
 sf_positivos_cantones_ultima_fecha <-
   left_join(sf_cantones, df_positivos_cantones_ultima_fecha, by = c('cod_canton')) %>%
   arrange(desc(positivos))
+
+
+# CÓDIGO PARA LA SECCIÓN OPCIONAL DE LA TAREA PROGRAMADA
+
+# Archivo CSV que proviene de la hoja con datos de distritos del archivo Excel con datos generales
+archivo_general_distritos <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_GENERAL_DISTRITOS.csv'
+
+# Carga del archivo CSV en un data frame
+df_general_distritos_sucio <- read.csv(archivo_general_distritos)
+
+# Eliminación de filas y columnas que corresponden a encabezados, totales, etc.
+df_general_distritos_ultima_fecha <- df_general_distritos_sucio[-c(1:5), -c(1, 3, 10, 11)]
+
+# Cambio de nombre de las columnas
+df_general_distritos_ultima_fecha <- 
+  df_general_distritos_ultima_fecha %>%
+  rename(provincia = X.1,
+         canton = X.3,
+         distrito = X.4,
+         positivos = X.5,
+         recuperados = X.6,
+         fallecidos = X.7,
+         activos = X.8
+  ) %>%  
+  mutate_all(funs(sub("^\\s*$", NA, .))) %>% # Se llenan con NA las celdas con espacios vacíos
+  mutate(distrito = if_else(distrito == "El Carmen", "Carmen", distrito)) %>%
+  mutate(distrito = if_else(distrito == "Valle de La Estrella", "Valle La Estrella", distrito)) %>%
+  mutate(distrito = if_else(distrito == "La Amistad", "La  Amistad", distrito)) %>%
+  fill(c(1,2)) # Se rellenan "hacia abajo" las columnas de provincia y cantón con valor NA
+
+# Borrado de las filas con valor de NA o de "Sin información de distrito" en la columna de distrito
+df_general_distritos_ultima_fecha <- df_general_distritos_ultima_fecha[!is.na(df_general_distritos_ultima_fecha$distrito), ]
+df_general_distritos_ultima_fecha <- df_general_distritos_ultima_fecha[df_general_distritos_ultima_fecha$distrito != 'Sin información de distrito', ]
+
+# Conversión a integer de los tipos de datos de las columnas con cifras
+df_general_distritos_ultima_fecha$positivos <- as.integer(df_general_distritos_ultima_fecha$positivos)
+df_general_distritos_ultima_fecha$recuperados <- as.integer(df_general_distritos_ultima_fecha$recuperados)
+df_general_distritos_ultima_fecha$fallecidos <- as.integer(df_general_distritos_ultima_fecha$fallecidos)
+df_general_distritos_ultima_fecha$activos <- as.integer(df_general_distritos_ultima_fecha$activos)
+
+# Objeto sf de distritos
+sf_distritos <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_distrital_ign_wgs84.geojson')
+
+# Objeto sf de casos positivos en distritos en la última fecha
+sf_general_distritos_ultima_fecha <-
+  left_join(sf_distritos, df_general_distritos_ultima_fecha, by = c('provincia', 'canton', 'distrito'))
 
 ```
 
@@ -333,3 +379,11 @@ Casos fallecidos
 Row {data-height=1}
 -----------------------------------------------------------------------
 ### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
+
+
+Distritos
+=======================================================================
+Row {data-height=1}
+-----------------------------------------------------------------------
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
+
