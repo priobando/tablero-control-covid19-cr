@@ -85,13 +85,15 @@ df_positivos_cantones_ultima_fecha <-
 
 
 # Objeto sf de cantones
-# url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
-# solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
-# sf_cantones <-
-#   st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
-#   st_simplify(dTolerance = 1000) %>%
-#   st_transform(4326)
-sf_cantones <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_cantones_ign_wgs84.geojson')
+url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
+solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
+sf_cantones <-
+  st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
+  st_simplify(dTolerance = 1000) %>%
+  st_transform(4326)
+# La carga de la capa de cantones desde un archivo GeoJSON parece generar un archivo HTML mucho más grande que
+# cuando se hace directmente desde el WFS del SNIT. Por eso se conserva la opción del WFS-SNIT.
+# sf_cantones <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_cantones_ign_wgs84.geojson')
 
 # Objeto sf de casos positivos en cantones en la última fecha
 sf_positivos_cantones_ultima_fecha <-
