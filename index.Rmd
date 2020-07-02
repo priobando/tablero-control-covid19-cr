@@ -14,7 +14,6 @@ output:
 
 library(flexdashboard)
 library(plotly)
-library(dygraphs)
 library(dplyr)
 library(tidyr)
 library(sf)
@@ -86,12 +85,13 @@ df_positivos_cantones_ultima_fecha <-
 
 
 # Objeto sf de cantones
-url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
-solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
-sf_cantones <-
-  st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
-  st_simplify(dTolerance = 1000) %>%
-  st_transform(4326)
+# url_base_wfs_ign_5mil <- "http://geos.snitcr.go.cr/be/IGN_5/wfs?"
+# solicitud_wfs_ign_5mil_cantones <- "request=GetFeature&service=WFS&version=2.0.0&typeName=IGN_5:limitecantonal_5k&outputFormat=application/json"
+# sf_cantones <-
+#   st_read(paste0(url_base_wfs_ign_5mil, solicitud_wfs_ign_5mil_cantones)) %>%
+#   st_simplify(dTolerance = 1000) %>%
+#   st_transform(4326)
+sf_cantones <- st_read('https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_cantones_ign_wgs84.geojson')
 
 # Objeto sf de casos positivos en cantones en la última fecha
 sf_positivos_cantones_ultima_fecha <-
@@ -104,7 +104,7 @@ Resumen
 =======================================================================
 Row {data-height=1}
 -----------------------------------------------------------------------
-### **Última actualización: `r  df_general_pais_ultima_fecha$FECHA`**
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
 
 
 Row
@@ -232,7 +232,7 @@ Casos positivos
 =======================================================================
 Row {data-height=1}
 -----------------------------------------------------------------------
-### **Última actualización: `r  df_general_pais_ultima_fecha$FECHA`**
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
 
 
 Row
@@ -316,18 +316,18 @@ Casos activos
 =======================================================================
 Row {data-height=1}
 -----------------------------------------------------------------------
-### **Última actualización: `r  df_general_pais_ultima_fecha$FECHA`**
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
 
 
 Casos recuperados
 =======================================================================
 Row {data-height=1}
 -----------------------------------------------------------------------
-### **Última actualización: `r  df_general_pais_ultima_fecha$FECHA`**
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
 
 
 Casos fallecidos
 =======================================================================
 Row {data-height=1}
 -----------------------------------------------------------------------
-### **Última actualización: `r  df_general_pais_ultima_fecha$FECHA`**
+### **Última actualización de datos: `r  df_general_pais_ultima_fecha$FECHA`**
