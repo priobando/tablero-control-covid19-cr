@@ -52,12 +52,12 @@ caracter_separador <- ','
 
 #--------------- Archivos de datos ----------------
 
-archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_GENERAL.csv'
+archivo_general_pais <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_GENERAL.csv'
 
-archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_POSITIVOS.csv'
-archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_ACTIVOS.csv'
-archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_RECUP.csv'
-archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_FALLECIDOS.csv'
+archivo_positivos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_POSITIVOS.csv'
+archivo_activos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_ACTIVOS.csv'
+archivo_recuperados_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_RECUP.csv'
+archivo_fallecidos_cantones <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_FALLECIDOS.csv'
 
 #---------------------- Datos ---------------------
 
@@ -104,7 +104,7 @@ sf_positivos_cantones_ultima_fecha <-
 # CÓDIGO PARA LA SECCIÓN OPCIONAL DE LA TAREA PROGRAMADA
 
 # Archivo CSV que proviene de la hoja con datos de distritos del archivo Excel con datos generales
-archivo_general_distritos <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_01_CSV_GENERAL_DISTRITOS.csv'
+archivo_general_distritos <- 'https://raw.githubusercontent.com/geoprocesamiento-2020i/datos/master/covid19/ms/07_02_CSV_GENERAL_DISTRITOS.csv'
 
 # Carga del archivo CSV en un data frame
 df_general_distritos_sucio <- read.csv(archivo_general_distritos)
