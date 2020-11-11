@@ -90,7 +90,7 @@ df_positivos_cantones_ultima_fecha <-
 
 
 # Objeto sf de cantones
-sf_cantones <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_cantones_ign_wgs84.geojson')
+sf_cantones <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_cantonal_ign_wgs84.geojson')
 
 # Objeto sf de casos positivos en cantones en la última fecha
 sf_positivos_cantones_ultima_fecha <-
