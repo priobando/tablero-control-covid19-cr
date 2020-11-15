@@ -24,26 +24,26 @@ library(leaflet)
 color_positivos <- 'blue'
 color_activos <- 'red'
 color_recuperados <- 'green'
-color_fallecidos <- 'violet'
+color_fallecidos <- 'gray'
 
 color_nuevos_positivos <- 'pink'
 
-color_hospitalizados <- 'pink'
-color_salon <- 'pink'
-color_uci <- 'pink'
+color_hospitalizados <- 'skyblue'
+color_salon <- 'skyblue'
+color_uci <- 'skyblue'
 
 #--------------------- Íconos ---------------------
 
-icono_positivos <- 'fas fa-stethoscope'
-icono_activos <- 'fas fa-plus-square'
-icono_recuperados <- 'fas fa-user-md'
-icono_fallecidos <- 'fas fa-user-md'
+icono_positivos <- 'fas fa-plus-circle'
+icono_activos <- 'fas fa-check'
+icono_recuperados <- 'fas fa-arrow-up'
+icono_fallecidos <- 'fas fa-frown'
 
 icono_nuevos_positivos <- 'fas fa-user-md'
 
 icono_hospitalizados <- 'fas fa-hospital-alt'
-icono_salon <- 'fas fa-user-md'
-icono_uci <- 'fas fa-user-md'
+icono_salon <- 'fas fa-briefcase-medical'
+icono_uci <- 'fas fa-procedures'
 
 #--------------- Otros parámetros -----------------
 
@@ -176,7 +176,7 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$activos, big.mark = "
                        round(100 * df_general_pais_ultima_fecha$activos / df_general_pais_ultima_fecha$positivos, 1), 
                        "%)", sep = ""), 
          caption = "Total de casos activos",
-         icon = icono_positivos, 
+         icon = icono_activos, 
          color = color_activos
 )
 ```
@@ -198,7 +198,7 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$fallecidos, big.mark 
                        round(100 * df_general_pais_ultima_fecha$fallecidos / df_general_pais_ultima_fecha$positivos, 1), 
                        "%)", sep = ""), 
          caption = "Total de casos fallecidos",
-         icon = icono_positivos, 
+         icon = icono_fallecidos, 
          color = color_fallecidos
 )
 ```
