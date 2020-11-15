@@ -1,5 +1,5 @@
 ---
-title: "Estado del COVID-19 en Costa Rica (Priscilla Obando)"
+title: "Estado del COVID-19 en Costa Rica (Esteban Gonzalez) (Priscilla Obando)"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
@@ -35,13 +35,13 @@ color_uci <- 'pink'
 #--------------------- Íconos ---------------------
 
 icono_positivos <- 'fas fa-stethoscope'
-icono_activos <- 'fas fa-user-md'
+icono_activos <- 'fas fa-plus-square'
 icono_recuperados <- 'fas fa-user-md'
 icono_fallecidos <- 'fas fa-user-md'
 
 icono_nuevos_positivos <- 'fas fa-user-md'
 
-icono_hospitalizados <- 'fas fa-user-md'
+icono_hospitalizados <- 'fas fa-hospital-alt'
 icono_salon <- 'fas fa-user-md'
 icono_uci <- 'fas fa-user-md'
 
@@ -101,6 +101,31 @@ df_activos_cantones_ultima_fecha <-
   filter(fecha == max(fecha, na.rm = TRUE)) %>%
   select(cod_canton, activos)
 
+# Data frame de casos recuperados por cantón
+df_recuperados_cantones_ancho <- read.csv(archivo_recuperados_cantones, sep = caracter_separador)
+df_recuperados_cantones <-
+  df_recuperados_cantones_ancho %>%
+  pivot_longer(cols = c(-cod_provin, -provincia, -cod_canton, -canton), names_to = "fecha", values_to = "recuperados")
+df_recuperados_cantones$fecha <- as.Date(df_recuperados_cantones$fecha, "X%d.%m.%Y")
+
+# Data frame de casos recuperados por cantón en la última fecha
+df_recuperados_cantones_ultima_fecha <- 
+  df_recuperados_cantones %>%
+  filter(fecha == max(fecha, na.rm = TRUE)) %>%
+  select(cod_canton, recuperados)
+
+# Data frame de casos fallecidos por cantón
+df_fallecidos_cantones_ancho <- read.csv(archivo_fallecidos_cantones, sep = caracter_separador)
+df_fallecidos_cantones <-
+  df_fallecidos_cantones_ancho %>%
+  pivot_longer(cols = c(-cod_provin, -provincia, -cod_canton, -canton), names_to = "fecha", values_to = "fallecidos")
+df_fallecidos_cantones$fecha <- as.Date(df_fallecidos_cantones$fecha, "X%d.%m.%Y")
+
+# Data frame de casos fallecidos por cantón en la última fecha
+df_fallecidos_cantones_ultima_fecha <- 
+  df_fallecidos_cantones %>%
+  filter(fecha == max(fecha, na.rm = TRUE)) %>%
+  select(cod_canton, fallecidos)
 
 # Objeto sf de cantones
 sf_cantones <- st_read('https://raw.githubusercontent.com/pf0953-programaciongeoespacialr-2020/datos/master/delimitacion-territorial-administrativa/cr/ign/cr_limite_cantonal_ign_wgs84.geojson')
@@ -114,6 +139,16 @@ sf_positivos_cantones_ultima_fecha <-
 sf_activos_cantones_ultima_fecha <-
   left_join(sf_cantones, df_activos_cantones_ultima_fecha, by = c('cod_canton')) %>%
   arrange(desc(activos))
+
+# Objeto sf de casos recuperados en cantones en la última fecha
+sf_recuperados_cantones_ultima_fecha <-
+  left_join(sf_cantones, df_recuperados_cantones_ultima_fecha, by = c('cod_canton')) %>%
+  arrange(desc(recuperados))
+
+# Objeto sf de casos fallecidos en cantones en la última fecha
+sf_fallecidos_cantones_ultima_fecha <-
+  left_join(sf_cantones, df_fallecidos_cantones_ultima_fecha, by = c('cod_canton')) %>%
+  arrange(desc(fallecidos))
 ```
 
 Resumen
@@ -152,7 +187,7 @@ valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark
                        round(100 * df_general_pais_ultima_fecha$RECUPERADOS / df_general_pais_ultima_fecha$positivos, 1), 
                        "%)", sep = ""), 
          caption = "Total de casos recuperados",
-         icon = icono_positivos, 
+         icon = icono_recuperados, 
          color = color_recuperados
 )
 ```
@@ -215,11 +250,11 @@ plot_ly(data = df_general_pais,
                 mode = 'lines',
                 line = list(color = color_positivos)) %>%
   add_trace(y = ~ activos,
-                    name = 'Activos',
+                    name = 'activos',
                     mode = 'lines',
                     line = list(color = color_activos)) %>%
-  add_trace(y = ~ RECUPERADOS,
-                    name = 'Recuperados',
+  add_trace(y = ~ activos,
+                    name = 'recuperados',
                     mode = 'lines',
                     line = list(color = color_recuperados)) %>%
   add_trace(y = ~ fallecidos,
@@ -366,7 +401,7 @@ leaflet_cantones <- leaflet(sf_activos_cantones_ultima_fecha) %>%
               group = "Cantones",
               popup = paste("Provincia: ", sf_activos_cantones_ultima_fecha$provincia, "<br>",
                             "Cantón: ", sf_activos_cantones_ultima_fecha$canton, "<br>",
-                            "Activos: ", sf_activos_cantones_ultima_fecha$activos
+                            "activos: ", sf_activos_cantones_ultima_fecha$activos
                             )
   ) %>%
   addLegend("bottomright", pal = paleta_activos, values = ~activos,
@@ -388,7 +423,7 @@ leaflet_cantones <- leaflet(sf_activos_cantones_ultima_fecha) %>%
 leaflet_cantones
 ```
 
-### Gráfico de cantones con mayor cantidad de casos positivos
+### Gráfico de cantones con mayor cantidad de casos activos
 ```{r}
 st_drop_geometry(sf_activos_cantones_ultima_fecha) %>%
 mutate(canton = factor(canton, levels = canton)) %>%
@@ -411,6 +446,7 @@ layout(yaxis = list(title = "Cantidad de casos activos"),
 ) 
 ```
 
+
 Casos recuperados
 =======================================================================
 Row {data-height=10}
@@ -418,8 +454,166 @@ Row {data-height=10}
 ### **Última actualización de datos realizada el `r  df_general_pais_ultima_fecha$FECHA` con base en los [datos publicados por el Ministerio de Salud de Costa Rica](http://geovision.uned.ac.cr/oges/)**.
 
 
+Row
+-----------------------------------------------------------------------
+
+### Casos recuperados {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$RECUPERADOS, big.mark = ","), "", sep = " "), 
+         caption = "Total de casos recuperados", 
+         icon = icono_recuperados, 
+         color = color_recuperados
+)
+```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+
+### Mapa de casos recuperados en cantones
+```{r}
+
+paleta_recuperados <- colorBin(palette = "Reds", 
+                        domain = sf_recuperados_cantones_ultima_fecha$recuperados,
+                        bins = 10
+               )
+
+leaflet_cantones <- leaflet(sf_recuperados_cantones_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addPolygons(fillColor = ~paleta_recuperados(recuperados), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Cantones",
+              popup = paste("Provincia: ", sf_recuperados_cantones_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_recuperados_cantones_ultima_fecha$canton, "<br>",
+                            "recuperados: ", sf_recuperados_cantones_ultima_fecha$recuperados
+                            )
+  ) %>%
+  addLegend("bottomright", pal = paleta_recuperados, values = ~recuperados,
+    title = "Casos recuperados",
+    opacity = 1
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Cantones"),
+    options = layersControlOptions(collapsed = TRUE)    
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik
+  )
+
+# Despliegue del mapa
+leaflet_cantones
+```
+
+### Gráfico de cantones con mayor cantidad de casos recuperados
+```{r}
+st_drop_geometry(sf_recuperados_cantones_ultima_fecha) %>%
+mutate(canton = factor(canton, levels = canton)) %>%
+top_n(n = 10, wt = recuperados) %>%  
+plot_ly(x = ~ canton, 
+        y = ~ recuperados, 
+        type = "bar", 
+        text = ~ recuperados,
+        textposition = 'auto',
+        marker = list(color = color_recuperados)
+) %>%
+layout(yaxis = list(title = "Cantidad de casos recuperados"),
+       xaxis = list(title = ""),
+       margin = list(l = 10,
+                     r = 10,
+                     b = 10,
+                     t = 10,
+                     pad = 2
+                )
+) 
+```
+
+
+
 Casos fallecidos
 =======================================================================
 Row {data-height=10}
 -----------------------------------------------------------------------
 ### **Última actualización de datos realizada el `r  df_general_pais_ultima_fecha$FECHA` con base en los [datos publicados por el Ministerio de Salud de Costa Rica](http://geovision.uned.ac.cr/oges/)**.
+
+
+Row
+-----------------------------------------------------------------------
+
+### Casos fallecidos {.value-box}
+```{r}
+valueBox(value = paste(format(df_general_pais_ultima_fecha$fallecidos, big.mark = ","), "", sep = " "), 
+         caption = "Total de casos fallecidos", 
+         icon = icono_fallecidos, 
+         color = color_fallecidos
+)
+```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+
+### Mapa de casos fallecidos en cantones
+```{r}
+
+paleta_azul <- colorBin(palette = "Blues", 
+                        domain = sf_fallecidos_cantones_ultima_fecha$fallecidos,
+                        bins = 10
+               )
+
+leaflet_cantones <- leaflet(sf_fallecidos_cantones_ultima_fecha) %>% 
+  fitBounds(lng1 = -86, lng2 = -82, lat1 = 8, lat2 = 11) %>%
+  addProviderTiles(providers$OpenStreetMap.Mapnik, group = "OpenStreetMap") %>%
+  addPolygons(fillColor = ~paleta_azul(fallecidos), stroke=T, fillOpacity = 1,
+              color="black", weight=0.2, opacity= 0.5,
+              group = "Cantones",
+              popup = paste("Provincia: ", sf_fallecidos_cantones_ultima_fecha$provincia, "<br>",
+                            "Cantón: ", sf_fallecidos_cantones_ultima_fecha$canton, "<br>",
+                            "Positivos: ", sf_fallecidos_cantones_ultima_fecha$fallecidos
+                            )
+  ) %>%
+  addLegend("bottomright", pal = paleta_azul, values = ~fallecidos,
+    title = "Casos fallecidos",
+    opacity = 1
+  ) %>%  
+  addLayersControl(
+    baseGroups = c("OpenStreetMap"),
+    overlayGroups = c("Cantones"),
+    options = layersControlOptions(collapsed = TRUE)    
+  ) %>%  
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik
+  )
+
+# Despliegue del mapa
+leaflet_cantones
+```
+
+### Gráfico de cantones con mayor cantidad de casos fallecidos
+```{r}
+st_drop_geometry(sf_fallecidos_cantones_ultima_fecha) %>%
+mutate(canton = factor(canton, levels = canton)) %>%
+top_n(n = 10, wt = fallecidos) %>%  
+plot_ly(x = ~ canton, 
+        y = ~ fallecidos, 
+        type = "bar", 
+        text = ~ fallecidos,
+        textposition = 'auto',
+        marker = list(color = color_fallecidos)
+) %>%
+layout(yaxis = list(title = "Cantidad de casos fallecidos"),
+       xaxis = list(title = ""),
+       margin = list(l = 10,
+                     r = 10,
+                     b = 10,
+                     t = 10,
+                     pad = 2
+                )
+) 
+```
+
+
+
