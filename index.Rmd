@@ -472,7 +472,7 @@ Row {data-width=400}
 ### Mapa de casos recuperados en cantones
 ```{r}
 
-paleta_recuperados <- colorBin(palette = "Reds", 
+paleta_recuperados <- colorBin(palette = "Greens", 
                         domain = sf_recuperados_cantones_ultima_fecha$recuperados,
                         bins = 10
                )
@@ -557,7 +557,7 @@ Row {data-width=400}
 ### Mapa de casos fallecidos en cantones
 ```{r}
 
-paleta_azul <- colorBin(palette = "Blues", 
+paleta_azul <- colorBin(palette = "Greys", 
                         domain = sf_fallecidos_cantones_ultima_fecha$fallecidos,
                         bins = 10
                )
